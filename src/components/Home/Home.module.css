@@ -1,0 +1,15 @@
+.container {
+  margin: 0 auto;
+  padding-inline: 20px;
+}
+
+.searchContainer{
+  margin: 6px 0;
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  width: 100%;
+  background-color: rgb(175, 190, 185);
+  padding: 6px;
+}
+
