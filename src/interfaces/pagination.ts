@@ -7,3 +7,9 @@ export interface PaginatedResponse<T> {
     };
     results: T;
   }
+  export interface PaginationControl {
+    page: number,
+    hasNext: boolean,
+    totalPages: number,
+    count: number,
+  }

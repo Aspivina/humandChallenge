@@ -5,9 +5,13 @@ export interface Character {
   species: string;
 }
 
-export interface PaginationControl {
-  page: number,
-  hasNext: boolean,
-  totalPages: number,
-  count: number,
+export interface CharacterDetailType {
+  id: string;
+  name: string;
+  image: string;
+  status: string;
+  species: string;
+  type: string | null;
+  episode: string[];
+  location: {name: string, url: string} | null;
 }

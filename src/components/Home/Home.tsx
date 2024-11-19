@@ -1,10 +1,12 @@
 import { Fragment, useEffect, useState } from "react";
-import CharThumbnails from "./CharThumbnails";
+import CharThumbnails from "../CharThumbnails/CharThumbnails";
 import classes from "./Home.module.css";
 
-import type { Character, PaginationControl } from "../../interfaces/character";
+import type { Character } from "../../interfaces/character";
+import { PaginationControl } from "../../interfaces/pagination";
 
 import { getCharacterList } from "../../services/character";
+
 const INITIAL_PAGINATION: PaginationControl = {
   page: 1,
   hasNext: true,
@@ -16,10 +18,14 @@ const Home = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [paginationControl, setPaginationControl] = useState(INITIAL_PAGINATION);
   const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleCharacterList = async () => {
-    const params = `?page=${paginationControl?.page}&name=${query}`;
+  const handleCharacterList = async (page: number = 1, isLoadMore: boolean = false) => {
+    if (loading) return; // Prevent multiple API calls simultaneously
 
+    setLoading(true);
+
+    const params = `?page=${page}&name=${query}`;
     const response = await getCharacterList(params);
 
     if (response) {
@@ -28,7 +34,9 @@ const Home = () => {
       } = response;
 
       if (results) {
-        setCharacters(results);
+        setCharacters((prev) =>
+          isLoadMore ? [...prev, ...results] : results
+        );
       }
       if (info) {
         setPaginationControl((prev) => {
@@ -41,16 +49,19 @@ const Home = () => {
         });
       }
     }
+    setLoading(false);
+
   };
 
   const handleSearch = () => {
     handleCharacterList();
   };
 
-  // const handleGetMore = ()=> {
-    //TODO handle the current page based on the next prop of currentInfo and add +1 for the next page
-    //TODO handle pagination
-  // }
+  const handleLoadMore = () => {
+    if (paginationControl.hasNext) {
+      handleCharacterList(paginationControl.page + 1, true);
+    }
+  };
 
   useEffect(() => {
     handleSearch();
@@ -62,7 +73,7 @@ const Home = () => {
         <h1>Rick & Morty</h1>
         <div className={classes.content}>
           <div className={classes.searchContainer}>
-            <label htmlFor="search">Search</label>
+            <label htmlFor="search">Check for a particular character!</label>
             <input
               id="search"
               type="text"
@@ -71,10 +82,19 @@ const Home = () => {
               }}
               value={query}
             />
-            <button onClick={handleSearch}>Search me!</button>
+            <button onClick={handleSearch}>Search</button>
           </div>
           <h3>Characters</h3>
           <CharThumbnails characterList={characters} />
+          {paginationControl.hasNext && (
+            <button
+              className={classes.loadMoreButton}
+              onClick={handleLoadMore}
+              disabled={loading}
+            >
+              {loading ? "Loading..." : "Load More"}
+            </button>
+          )}
         </div>
       </div>
     </Fragment>
